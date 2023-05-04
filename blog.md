@@ -128,7 +128,7 @@ to authenticate with your account using `gcloud auth application-default login` 
 Finally, whatever user account you are authing with must have the correct roles and permissions to read the CSR repository.
 
 ## Links and References
-* [This blog as a repository]()
+* [This blog as a repository](https://github.com/adispen/gcp-csr-terraform-modules)
 * [Remote Module References in Terraform](https://developer.hashicorp.com/terraform/language/modules/sources#generic-git-repository)
 * [GCP Cloud Source Repositories Docs](https://cloud.google.com/source-repositories/docs)
 * [Managing GCP Infrastructure With Terraform and Cloud Build](https://cloud.google.com/docs/terraform/resource-management/managing-infrastructure-as-code)
