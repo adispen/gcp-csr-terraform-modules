@@ -20,7 +20,7 @@ The following steps assume you have set up your project and local SDK with the c
 
 While using the Hashicorp provided Terraform image may be sufficient for most deployments, if you intend to manage your
 Cloud Build deployments it is advisable to create your own.  There are many benefits to this including any bespoke tooling
-your automation may require, but in our case it is important that our Terraform buidler image also has access to the `gcloud` SDK.
+your automation may require, but in our case it is important that our Terraform builder image also has access to the `gcloud` SDK.
 This will allow Terraform to properly find the credentials associated with the assigned Cloud Build service account when
 authenticating against CSR.
 
