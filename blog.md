@@ -128,7 +128,7 @@ repository.
 
 Finally we see the revision reference in `?ref=main`.  This is how Terraform [knows which version of your repository to reference](https://developer.hashicorp.com/terraform/language/modules/sources#selecting-a-revision).
 This allows you to specify anything that a `checkout` command would accept by simply replacing the `main` identifier 
-with whatever revision desired including branch names, tags, and SHA-1 hashes.  Using tags and/or branches here is highly recommended
+with whatever revision desired including branch names, tags, and SHA-1 hashes.  [Using tags and/or branches here is highly recommended](https://www.hashicorp.com/resources/a-guide-to-terraform-binary-provider-and-module-versioning#:~:text=be%20accepted%20soon.-,Module%20Versioning,-Let%27s%20bring%20it)
 for ensuring whichever Terraform configurations are pulling the module are aware of exactly
 
 ## Performing a Local Terraform Apply
