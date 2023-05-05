@@ -1,4 +1,4 @@
-# Sourcing Terraform Modules Stored in Cloud Source Repositories from Cloud Build
+# Sourcing Terraform Modules Stored in GCP Cloud Source Repositories from Cloud Build
 
 When using GCP's Cloud Build to automate your Terraform infrastructure deployments you'll
 almost certainly need to store and manage your Terraform Modules in version control. 
@@ -14,9 +14,14 @@ securely provide access for Cloud Build to pull Terraform Modules with full perm
 Even if your repository is already hosted on a platform such as GitHub, [CSR provides mirroring](https://cloud.google.com/source-repositories/docs/mirroring-repositories) 
 for most major git hosting providers enabling you to easily utilize these tools without potentially exposing access to your cloud environment.
 
-The following steps assume you have set up your project and local SDK with the correct permissions and services enabled including Cloud Build, CSR, and Container Registry.
+## Assumptions
 
-## Terraform Cloud Build Image
+Before we get started it is important to understand the state this blog expects your environment to be in.  Ensure the following are true
+before you proceed:
+* GCP Project configured with Cloud Build and CSR APIs enabled.
+* Local `gcloud` SDK is properly installed, set up, and authenticated with the desire project.
+
+## Creating the Terraform Image for Cloud Build
 
 While using the Hashicorp provided Terraform image may be sufficient for most deployments, if you intend to manage your
 Cloud Build deployments it is advisable to create your own.  There are many benefits to this including any bespoke tooling
@@ -59,7 +64,7 @@ With this image created, be sure to [store it in Container Registry](https://clo
 
 `docker push gcr.io/my-project/terraform:1.4.6`
 
-## Cloud Build Pipeline
+## Creating the Cloud Build Pipeline 
 
 Now we need to set up our Cloud Build pipeline to actually deploy the Terraform changes.  This section assumes you have an
 existing Cloud Build pipeline and trigger already configured and won't be covering all the different options available. 
@@ -68,7 +73,6 @@ or its associated permissions attached.
 
 ```yaml
 steps:
-  # Init
   - name: "gcr.io/my-project/terraform:1.4.6"
     entrypoint: "bash"
     args:
@@ -84,10 +88,17 @@ in the previous step so that all the correct libraries are available to the Clou
 The `git config` line configures git to use the local `gcloud` SDK credential helper when reaching out to the CSR domain.  We'll specify
 the actual location of the code within the Terraform itself.
 
-## Terraform Module Reference
+## Updating the Terraform Module Reference
 
 Finally, we'll need to modify the Terraform configuration file that calls the module source.  You'll only need to modify the `source` 
 field in your module call, everything else can remain as configured previously.
+
+```
+my-example-repo/
+└── modules
+    └── example-remote-module
+        └── main.tf
+```
 
 ```hcl
 module "example-remote-module" {
@@ -96,7 +107,10 @@ module "example-remote-module" {
 }
 ```
 
-Above we can see a few different configurations in action.  Let's break down each part:
+Above we can see a few different configuration options in action, as well as the directory structure of the remote repository we are
+sourcing our module from.  
+
+Let's break down each part of the `source` block:
 
 `https://source.developers.google.com/p/my-project/r/my-example-repo/`
 
@@ -114,9 +128,10 @@ repository.
 
 Finally we see the revision reference in `?ref=main`.  This is how Terraform [knows which version of your repository to reference](https://developer.hashicorp.com/terraform/language/modules/sources#selecting-a-revision).
 This allows you to specify anything that a `checkout` command would accept by simply replacing the `main` identifier 
-with whatever revision desired including branch names, tags, and SHA-1 hashes.
+with whatever revision desired including branch names, tags, and SHA-1 hashes.  Using tags and/or branches here is highly recommended
+for ensuring whichever Terraform configurations are pulling the module are aware of exactly
 
-## Local Terraform Apply
+## Performing a Local Terraform Apply
 
 During development you may need to apply your Terraform configuration locally for testing or debugging.  While the above
 configuration is meant to operate in an automated Cloud Build CI/CD pipeline, you can still apply the Terraform configuration
@@ -126,6 +141,13 @@ The only considerations to make are to ensure that you have the `gcloud` SDK ins
 to authenticate with your account using `gcloud auth application-default login` and select the project project with
 `gcloud config set project <project name>`.  More configuration specifics can be found [in the GCP docs](https://cloud.google.com/sdk/docs/authorizing).
 Finally, whatever user account you are authing with must have the correct roles and permissions to read the CSR repository.
+
+## Conclusion
+
+Whether you already use a repository located in CSR or have a managed git repository on another host, this method provides
+a more secure and auditable method for managing your Terraform modules in CI/CD. Removing the need to pass around and 
+maintain SSH keys between different services should significantly reduce the overhead required, and more tightly integrate into
+your cloud environment's existing IAM processes and procedures.
 
 ## Links and References
 * [This blog as a repository](https://github.com/adispen/gcp-csr-terraform-modules)
