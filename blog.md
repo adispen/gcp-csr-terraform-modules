@@ -58,11 +58,11 @@ The above simply creates an image with all the prerequisites for running Terrafo
 adjust the SDK and Terraform version as required.  You can also add any other libraries or tooling your particular deployment
 pipeline might need.
 
-`docker build -t gcr.io/my-project/terraform:1.4.6 .`
+`docker build -t us-east1-docker.pkg.dev/my-project/terraform:1.4.6 .`
 
-With this image created, be sure to [store it in Container Registry](https://cloud.google.com/container-registry/docs/pushing-and-pulling) so Cloud Build can access and run it.
+With this image created, be sure to [store it in Artifact Registry](https://cloud.google.com/artifact-registry/docs/docker/pushing-and-pulling) so Cloud Build can access and run it.
 
-`docker push gcr.io/my-project/terraform:1.4.6`
+`docker push us-east1-docker.pkg.dev/my-project/terraform:1.4.6`
 
 ## Creating the Cloud Build Pipeline 
 
@@ -73,7 +73,7 @@ or its associated permissions attached.
 
 ```yaml
 steps:
-  - name: "gcr.io/my-project/terraform:1.4.6"
+  - name: "us-east1-docker.pkg.dev/my-project/terraform:1.4.6"
     entrypoint: "bash"
     args:
       - -c
